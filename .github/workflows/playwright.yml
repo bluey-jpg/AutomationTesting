@@ -1,0 +1,45 @@
+# Name of the workflow — shows up in GitHub Actions tab
+name: Playwright Tests
+
+# When to run — every time you push code to main
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    # Run on a fresh Ubuntu machine in the cloud
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1 — Check out your code
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # Step 2 — Install Node.js
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      # Step 3 — Install your project dependencies
+      - name: Install dependencies
+        run: npm ci
+
+      # Step 4 — Install Playwright browsers
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps
+
+      # Step 5 — Run your tests!
+      - name: Run Playwright tests
+        run: npx playwright test
+
+      # Step 6 — Upload the HTML report so you can download it
+      - name: Upload test report
+        uses: actions/upload-artifact@v4
+        if: always() # upload even if tests fail
+        with:
+          name: playwright-report
+          path: playwright-report/
